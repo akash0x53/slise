@@ -2,3 +2,7 @@
 .project
 .pydevproject
 *.*~
+*.jpg
+*.jpeg
+*.png
+
