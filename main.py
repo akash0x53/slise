@@ -8,12 +8,12 @@ if __name__=="__main__":
     
     cam=cv2.VideoCapture()
     cam.open(-1)
-    
+    obj=Adjust()
     
     while True:
         _,frm=cam.read()
         
-        obj=Adjust(frm)
+        obj.image=frm
         obj.resize()
         
         hist=Histogram(obj.tohsv())

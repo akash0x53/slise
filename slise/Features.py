@@ -42,13 +42,9 @@ class Histogram:
             cv2.line(temp3, (x,300), (x,300-pt), (0,0,255))
             x+=1
                 
-        #canvas=np.add(temp1,temp2)
-        #canvas=np.add(canvas,temp3)
-        
         canvas=cv2.addWeighted(temp1,1.0, temp2, 1.0,0)
         canvas=cv2.addWeighted(canvas,1.0,temp3,1.0,0)               
-        print 'loop'
-               
+                       
         return canvas    
             
             
