@@ -1,4 +1,4 @@
-import gtk
+from gi.repository import Gtk as gtk
 import os
 
 class Slise_win:
@@ -19,7 +19,7 @@ class Slise_win:
         
         
         
-        window.show()
+        window.show_all()
         
     def onExit(self,event,data):
         print 'Bye...',event,data
