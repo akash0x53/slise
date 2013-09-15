@@ -8,6 +8,14 @@
       <pattern>*.jpeg</pattern>
     </patterns>
   </object>
+  <object class="GtkListStore" id="icon_list">
+    <columns>
+      <!-- column-name pics -->
+      <column type="GdkPixbuf"/>
+      <!-- column-name path -->
+      <column type="gchararray"/>
+    </columns>
+  </object>
   <object class="GtkWindow" id="window1">
     <property name="width_request">850</property>
     <property name="can_focus">False</property>
@@ -162,7 +170,27 @@
               </packing>
             </child>
             <child>
-              <placeholder/>
+              <object class="GtkScrolledWindow" id="scrolledwindow1">
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="shadow_type">in</property>
+                <child>
+                  <object class="GtkIconView" id="result_view">
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="vscroll_policy">natural</property>
+                    <property name="model">icon_list</property>
+                    <property name="columns">2</property>
+                    <property name="item_width">220</property>
+                    <property name="spacing">21</property>
+                  </object>
+                </child>
+              </object>
+              <packing>
+                <property name="expand">True</property>
+                <property name="fill">True</property>
+                <property name="position">1</property>
+              </packing>
             </child>
           </object>
           <packing>
