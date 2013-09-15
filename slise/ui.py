@@ -1,14 +1,7 @@
 from gi.repository import Gtk as gtk
 from gi.repository import Gdk as gdk
 from gi.repository import GdkPixbuf
-import cv2 
-import os,sys
-
-#sys.settrace('trace')
-
-def trace(frame, event, arg):
-    print "%s, %s:%d" % (event, frame.f_code.co_filename, frame.f_lineno)
-    return trace
+import os
 
 class Slise_win:
     
