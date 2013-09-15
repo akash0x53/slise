@@ -18,6 +18,8 @@ class Slise_win:
         builder=gtk.Builder()
         builder.add_from_file(ui_file)
         
+        
+        
         #main window
         window=gtk.Window()
         window=builder.get_object('window1')
@@ -30,7 +32,35 @@ class Slise_win:
         self.area.connect('draw',self.onExpose)
         #show histogram
         self.histogram=builder.get_object('histogram_canvas')
-        self.histogram.connect_after('draw',self.drawHistogram) 
+        self.histogram.connect_after('draw',self.drawHistogram)
+        
+        #FOR TEST
+        icon_view=builder.get_object('result_view')
+        liststore=builder.get_object('icon_list')
+        icon_view.set_model(liststore)
+        icon_view.set_pixbuf_column(0)
+        icon_view.set_text_column(1)
+        
+                
+        px=GdkPixbuf.Pixbuf.new_from_file_at_scale('temp.jpg',200,200,1)
+        liststore.append([px,"Temp"])
+        
+        px=GdkPixbuf.Pixbuf.new_from_file_at_scale('temp.jpg',200,200,1)
+        liststore.append([px,"Temp"])
+        px=GdkPixbuf.Pixbuf.new_from_file_at_scale('temp.jpg',200,200,1)
+        liststore.append([px,"Temp"])
+        px=GdkPixbuf.Pixbuf.new_from_file_at_scale('temp.jpg',200,200,1)
+        liststore.append([px,"Temp"])
+        px=GdkPixbuf.Pixbuf.new_from_file_at_scale('temp.jpg',200,200,1)
+        liststore.append([px,"Temp"])
+        px=GdkPixbuf.Pixbuf.new_from_file_at_scale('temp.jpg',200,200,1)
+        liststore.append([px,"/as"])
+        
+        style=gtk.CssProvider()
+        style.load_from_path('./gui/style.css')
+        
+        gtk.StyleContext.add_provider_for_screen(gdk.Screen.get_default(),style,gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
+                 
                         
         window.show_all()
         
