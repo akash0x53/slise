@@ -21,11 +21,11 @@ class Histogram:
         
             
     def draw_histogram(self):
-        canvas=np.zeros((300,256,3))
+        canvas=np.zeros((300,256,3),'uint8')
         
-        temp1=np.zeros((300,256,3))
-        temp2=np.zeros((300,256,3))
-        temp3=np.zeros((300,256,3))
+        temp1=np.zeros((300,256,3),'uint8')
+        temp2=np.zeros((300,256,3),'uint8')
+        temp3=np.zeros((300,256,3),'uint8')
         
         x=0
         for pt in self.hist[0]:
@@ -44,6 +44,7 @@ class Histogram:
                 
         canvas=cv2.addWeighted(temp1,1.0, temp2, 1.0,0)
         canvas=cv2.addWeighted(canvas,1.0,temp3,1.0,0)               
+        
                        
         return canvas    
             
