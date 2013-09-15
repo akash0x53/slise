@@ -28,7 +28,7 @@ class Histogram:
         temp3=np.zeros((300,256,3),'uint8')
         
         x=0
-        for pt in self.hist[0]:
+        for pt in self.hist[2]:
             cv2.line(temp1, (x,100), (x,100-pt), (255,0,0))
             x+=1
        
@@ -38,7 +38,7 @@ class Histogram:
             x+=1
             
         x=0
-        for pt in self.hist[2]:
+        for pt in self.hist[0]:
             cv2.line(temp3, (x,300), (x,300-pt), (0,0,255))
             x+=1
                 
