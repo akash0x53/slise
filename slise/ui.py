@@ -1,14 +1,20 @@
 from gi.repository import Gtk as gtk
 from gi.repository import Gdk as gdk
 from gi.repository import GdkPixbuf
- 
-import os
+import cv2 
+import os,sys
+
+#sys.settrace('trace')
+
+def trace(frame, event, arg):
+    print "%s, %s:%d" % (event, frame.f_code.co_filename, frame.f_lineno)
+    return trace
 
 class Slise_win:
     
     def __init__(self):
         self.path=None
-        ui_file=os.path.dirname(__file__)+"./gui/slise.glade"
+        ui_file=os.path.dirname(__file__)+"/gui/slise.glade"
         
         if os.path.exists(ui_file):
             print 'found glade...'
@@ -31,24 +37,20 @@ class Slise_win:
                 
         window.show_all()
         
-    def onExpose(self,area,cairo):
-        #print dir(area)
+    def onExpose(self,area,context):
                
         if self.path is not None:
-            #area.realize()
-            cr=gdk.cairo_create(area.get_window())
-            
+                                   
             pix=GdkPixbuf.Pixbuf()
-            pix.new_from_file(self.path)
-            print pix
-            img=gtk.Image()
-            img.set_from_pixbuf(pix)           
+            img=pix.new_from_file(self.path)
+                                    
+            gdk.cairo_set_source_pixbuf(context,img,0,0)
             
-            gdk.cairo_set_source_pixbuf(cr,img.get_pixbuf(),0.0,0.0)
-            cairo.paint()
-            cairo.fill()
-            cairo.destroy()
-                        
+            context.fill()
+            context.paint()
+            
+                       
+                                   
         
     def onSelectFile(self,event):
         self.path=event.get_filename()
