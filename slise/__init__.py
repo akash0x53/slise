@@ -1,0 +1,2 @@
+__IMAGE_PATH__=None
+__HISTOGRAM__=None
