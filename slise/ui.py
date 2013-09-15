@@ -2,6 +2,9 @@ from gi.repository import Gtk as gtk
 from gi.repository import Gdk as gdk
 from gi.repository import GdkPixbuf
 from slise import __IMAGE_PATH__, __HISTOGRAM__
+from Adjust import Adjust
+from Features import Histogram
+import array
 
 import os,cv2
 
@@ -29,12 +32,14 @@ class Slise_win:
         self.area.connect('draw',self.onExpose)
         #show histogram
         self.histogram=builder.get_object('histogram_canvas')
-        self.histogram.connect('draw',self.drawHistogram) 
+        self.histogram.connect_after('draw',self.drawHistogram) 
                         
         window.show_all()
         
     def onExpose(self,area,context):
-        global __IMAGE_PATH__    
+        global __IMAGE_PATH__
+        global __HISTOGRAM__    
+        
         if __IMAGE_PATH__ is not None:
             pix=GdkPixbuf.Pixbuf()
             print __IMAGE_PATH__
@@ -43,24 +48,46 @@ class Slise_win:
             context.fill()
             context.paint()
             
+        if __HISTOGRAM__ is None and __IMAGE_PATH__ is not None :
+            print 'its none'
+            adjust_image=Adjust()
+            adjust_image.image=cv2.imread(__IMAGE_PATH__)
+            hist_calc=Histogram(adjust_image.image)
+            hist_calc.get_histogram()
+            __HISTOGRAM__=hist_calc.draw_histogram()
+            print __HISTOGRAM__
+            self.histogram.queue_draw()
+            
     def drawHistogram(self,arear,context):
         global __HISTOGRAM__
+        global __IMAGE_PATH__
         
         if __HISTOGRAM__ is not None:
+            print 'histo called'
+            
             pix=GdkPixbuf.Pixbuf()
-            img=pix.new_from_data(__HISTOGRAM__.tostring(),GdkPixbuf.Colorspace.RGB,False,8,__HISTOGRAM__.shape[1],__HISTOGRAM__.shape[0],__HISTOGRAM__.strides[0],None,None)
+            print __HISTOGRAM__.shape
+            print __HISTOGRAM__.dtype
+                       
+            
+            img=pix.new_from_data(__HISTOGRAM__.tostring(),GdkPixbuf.Colorspace.RGB,False,8,256,300,256*3,None,None)
             
             gdk.cairo_set_source_pixbuf(context,img,0,0)
+            
             context.fill()
             context.paint()
-                                   
+            __HISTOGRAM__=None
+            
+    def temp(self,event):
+        print 'error',event
+                                
         
     def onSelectFile(self,event):
         global __IMAGE_PATH__
         self.path=event.get_filename()
         __IMAGE_PATH__=self.path
         self.area.queue_draw()
-        self.histogram.queue_draw()
+        
         
                     
     def onExit(self,event,data):
@@ -70,9 +97,9 @@ class Slise_win:
     
                     
 
-'''if __name__=="__main__":
+if __name__=="__main__":
     a=Slise_win()
-    gtk.main()'''
+    gtk.main()
     
         
         
