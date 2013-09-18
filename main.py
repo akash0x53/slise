@@ -4,7 +4,10 @@ from gi.repository import GdkPixbuf
 from slise import __IMAGE_PATH__, __HISTOGRAM__
 from slise.Adjust import Adjust
 from slise.Features import Histogram
+from slise.enumerate import EnumerateFiles
+import thread
 import os,cv2
+
 
 class Slise_win:
     
@@ -12,21 +15,28 @@ class Slise_win:
         self.path=None
         ui_file=os.path.dirname(__file__)+"/gui/slise.glade"
         
+       
+        
         if os.path.exists(ui_file):
             print 'found glade...'
         
         builder=gtk.Builder()
         builder.add_from_file(ui_file)
         
-        
-        
         #main window
         window=gtk.Window()
         window=builder.get_object('window1')
         window.connect('delete-event',self.onExit)
+        
         #file chooser dialog box
         select_file=builder.get_object('file_chooser')
+        select_file.set_name('file')
         select_file.connect('file-set',self.onSelectFile) #on selection of file using FileChooseDialog box it generates "file-set" signal
+        #select_folder
+        folder=builder.get_object('select_folder')
+        folder.connect('file-set',self.onSelectFile)
+        folder.set_name('folder')
+        
         #image preview
         self.area=builder.get_object('preview')
         self.area.connect('draw',self.onExpose)
@@ -41,36 +51,22 @@ class Slise_win:
         icon_view.set_pixbuf_column(0)
         icon_view.set_text_column(1)
         
-                
-        px=GdkPixbuf.Pixbuf.new_from_file_at_scale('temp.jpg',200,200,1)
-        liststore.append([px,"Temp"])
-        
-        px=GdkPixbuf.Pixbuf.new_from_file_at_scale('temp.jpg',200,200,1)
-        liststore.append([px,"Temp"])
-        px=GdkPixbuf.Pixbuf.new_from_file_at_scale('temp.jpg',200,200,1)
-        liststore.append([px,"Temp"])
-        px=GdkPixbuf.Pixbuf.new_from_file_at_scale('temp.jpg',200,200,1)
-        liststore.append([px,"Temp"])
-        px=GdkPixbuf.Pixbuf.new_from_file_at_scale('temp.jpg',200,200,1)
-        liststore.append([px,"Temp"])
-        px=GdkPixbuf.Pixbuf.new_from_file_at_scale('temp.jpg',200,200,1)
-        liststore.append([px,"/as"])
-        
+        icon_view.set_name('view')
+        self.area.set_name('da')
+        #add CSS
         style=gtk.CssProvider()
         style.load_from_path('./gui/style.css')
-        
         gtk.StyleContext.add_provider_for_screen(gdk.Screen.get_default(),style,gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
-                 
                         
         window.show_all()
-        
+            
     def onExpose(self,area,context):
         global __IMAGE_PATH__
         global __HISTOGRAM__    
         
         if __IMAGE_PATH__ is not None:
             pix=GdkPixbuf.Pixbuf()
-            print __IMAGE_PATH__
+            #print __IMAGE_PATH__
             img=pix.new_from_file_at_scale(__IMAGE_PATH__,300,300,1)
             gdk.cairo_set_source_pixbuf(context,img,0,0)
             context.fill()
@@ -82,10 +78,10 @@ class Slise_win:
             hist_calc=Histogram(adjust_image.image)
             hist_calc.get_histogram()
             __HISTOGRAM__=hist_calc.draw_histogram()
-            print __HISTOGRAM__
+            #print __HISTOGRAM__
             self.histogram.queue_draw()
             
-    def drawHistogram(self,arear,context):
+    def drawHistogram(self,area,context):
         global __HISTOGRAM__
         if __HISTOGRAM__ is not None:
             pix=GdkPixbuf.Pixbuf()
@@ -96,17 +92,34 @@ class Slise_win:
             context.paint()
             __HISTOGRAM__=None
         
-    def onSelectFile(self,event):
+    def onSelectFile(self,widget):
         global __IMAGE_PATH__
-        self.path=event.get_filename()
-        __IMAGE_PATH__=self.path
-        self.area.queue_draw()
+        global __FOLDER_PATH__
+        
+        print widget.get_name()         
+        if widget.get_name()=="file":
+            self.path=widget.get_filename()
+            __IMAGE_PATH__=self.path
+            self.area.queue_draw()
+            
+        elif widget.get_name()=="folder":
+            __FOLDER_PATH__=widget.get_filename()
+            self.gather_files(__FOLDER_PATH__)
+            
+    def gather_files(self,path):
+        try:
+            e=EnumerateFiles(path)
+            e.start()
+            e.join()
+                                    
+            print 'thread created',e.get_files
+        except Exception as e:
+            print 'Unable to start enumeration thread',e
+               
                     
     def onExit(self,event,data):
         print 'Bye...',event,data
         gtk.main_quit()
-        
-    
                     
 
 if __name__=="__main__":
