@@ -1,6 +1,10 @@
 /* Stylesheet fot Slise GTK3 application
 Author: Akash Shende
 */
-GtkIconView{
+
+
+#view {
 		background-color:#FFFFFF;
+		color: #000000;
 }
+
