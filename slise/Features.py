@@ -13,7 +13,7 @@ class Histogram:
         self.hist=list()
         
         for i in range(0,len(channels)):
-            print i
+            #print i
             temp_histo=cv2.calcHist([channels[i]], [0], None,[256],[0,255])
             temp_histo=cv2.normalize(temp_histo,temp_histo,0,100,cv2.NORM_MINMAX)
             self.hist.append(temp_histo)
