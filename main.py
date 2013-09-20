@@ -4,9 +4,8 @@ from gi.repository import GdkPixbuf
 from slise import __IMAGE_PATH__, __HISTOGRAM__
 from slise.Adjust import Adjust
 from slise.Features import Histogram
-from slise.enumerate import EnumerateFiles
-import thread
 import os,cv2
+from multiprocessing.pool import ThreadPool
 
 
 class Slise_win:
@@ -108,11 +107,11 @@ class Slise_win:
             
     def gather_files(self,path):
         try:
-            e=EnumerateFiles(path)
-            e.start()
-            e.join()
-                                    
-            print 'thread created',e.get_files
+            
+            t=ThreadPool(4)
+            res=t.apply_async(enumerate_files, [path])
+                                                
+            print 'thread created',res.get(timeout=1)
         except Exception as e:
             print 'Unable to start enumeration thread',e
                
@@ -120,7 +119,26 @@ class Slise_win:
     def onExit(self,event,data):
         print 'Bye...',event,data
         gtk.main_quit()
-                    
+
+def enumerate_files(path):
+        global __FOLDER_PATH__
+        print 'function called'
+        
+        temp=list()
+        files=list()
+        
+        for (_,_,filename) in os.walk(path):
+            temp.extend(filename)
+        
+        for single_file in temp:
+            _,ext=os.path.splitext(single_file)
+            
+            if ext.lower() in ('.jpg','.jpeg','.png'):
+                files.append(single_file)
+                
+                
+        print 'completed'
+        return files                    
 
 if __name__=="__main__":
     a=Slise_win()
