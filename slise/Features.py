@@ -7,6 +7,9 @@ class Histogram:
     
     def __init__(self,img):
         self.image=img
+        
+    def __eq__(self,another_histo):
+        return cv2.compareHist(self.hist[0],another_histo.hist[0],cv2.cv.CV_COMP_CORREL)
     
     def get_histogram(self):
         channels=self.image[:,:,0],self.image[:,:,1],self.image[:,:,2]
@@ -18,7 +21,6 @@ class Histogram:
             temp_histo=cv2.normalize(temp_histo,temp_histo,0,100,cv2.NORM_MINMAX)
             self.hist.append(temp_histo)
             #print temp_histo
-        
             
     def draw_histogram(self):
         canvas=np.zeros((300,256,3),'uint8')
