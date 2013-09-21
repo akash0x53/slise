@@ -1,6 +1,6 @@
 SLISE
 ----
-##Simple Local Image Search Engine   
+###Simple Local Image Search Engine   
 
 
 
