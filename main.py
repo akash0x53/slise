@@ -1,11 +1,14 @@
 from gi.repository import Gtk as gtk
 from gi.repository import Gdk as gdk
 from gi.repository import GdkPixbuf
-from slise import __IMAGE_PATH__, __HISTOGRAM__
+from slise import __IMAGE_PATH__, __CURR_FILE__, __MATCHED_FILE__
+from slise import __HISTOGRAM__
+from slise import  __FILES__
 from slise.Adjust import Adjust
 from slise.Features import Histogram
 import os,cv2
 from multiprocessing.pool import ThreadPool
+from slise.slise_exception import SliseException
 
 
 class Slise_win:
@@ -13,9 +16,7 @@ class Slise_win:
     def __init__(self):
         self.path=None
         ui_file=os.path.dirname(__file__)+"/gui/slise.glade"
-        
-       
-        
+              
         if os.path.exists(ui_file):
             print 'found glade...'
         
@@ -43,14 +44,21 @@ class Slise_win:
         self.histogram=builder.get_object('histogram_canvas')
         self.histogram.connect_after('draw',self.drawHistogram)
         
-        #FOR TEST
-        icon_view=builder.get_object('result_view')
-        liststore=builder.get_object('icon_list')
-        icon_view.set_model(liststore)
-        icon_view.set_pixbuf_column(0)
-        icon_view.set_text_column(1)
+        #text entry
+        self.entry=builder.get_object('entry1')
         
-        icon_view.set_name('view')
+        #search widget
+        search=builder.get_object('search')
+        search.connect('clicked',self.search)
+        
+        #image previews
+        self.icon_view=builder.get_object('result_view')
+        self.liststore=builder.get_object('icon_list')
+        self.icon_view.set_model(self.liststore)
+        self.icon_view.set_pixbuf_column(0)
+        self.icon_view.set_text_column(1)
+        
+        self.icon_view.set_name('view')
         self.area.set_name('da')
         #add CSS
         style=gtk.CssProvider()
@@ -58,7 +66,22 @@ class Slise_win:
         gtk.StyleContext.add_provider_for_screen(gdk.Screen.get_default(),style,gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
                         
         window.show_all()
+        
+    def search(self,event):
+        try:
+            find_thread=ThreadPool(4)
+            res=find_thread.apply_async(compare_histo,[self.hist_calc])
+            res.get(timeout=1)
+            print __MATCHED_FILE__
             
+            fill_preview=ThreadPool(4)
+            res2=fill_preview.apply_async(fill_icon_view,[self.liststore])
+            res2.get(timeout=1)
+            
+            self.icon_view.queue_draw()
+        except Exception as e:
+            print e 
+                              
     def onExpose(self,area,context):
         global __IMAGE_PATH__
         global __HISTOGRAM__    
@@ -74,9 +97,9 @@ class Slise_win:
         if __HISTOGRAM__ is None and __IMAGE_PATH__ is not None :
             adjust_image=Adjust()
             adjust_image.image=cv2.imread(__IMAGE_PATH__)
-            hist_calc=Histogram(adjust_image.image)
-            hist_calc.get_histogram()
-            __HISTOGRAM__=hist_calc.draw_histogram()
+            self.hist_calc=Histogram(adjust_image.image)
+            self.hist_calc.get_histogram()
+            __HISTOGRAM__=self.hist_calc.draw_histogram()
             #print __HISTOGRAM__
             self.histogram.queue_draw()
             
@@ -104,42 +127,86 @@ class Slise_win:
         elif widget.get_name()=="folder":
             __FOLDER_PATH__=widget.get_filename()
             self.gather_files(__FOLDER_PATH__)
+            self.entry.set_text(__FOLDER_PATH__)
             
     def gather_files(self,path):
+        global __FILES__
         try:
-            
             t=ThreadPool(4)
             res=t.apply_async(enumerate_files, [path])
-                                                
-            print 'thread created',res.get(timeout=1)
+            res.get(timeout=1)
+            print 'thread created',__FILES__
         except Exception as e:
             print 'Unable to start enumeration thread',e
-               
                     
     def onExit(self,event,data):
         print 'Bye...',event,data
         gtk.main_quit()
 
 def enumerate_files(path):
-        global __FOLDER_PATH__
+        global __FILES__
         print 'function called'
         
         temp=list()
         files=list()
+        base=list()
         
-        for (_,_,filename) in os.walk(path):
+        for (_base,_dir,filename) in os.walk(path):
             temp.extend(filename)
         
+        while len(filename):
+            print os.path.join(_base,temp.pop()),
+            
+                           
+        '''
         for single_file in temp:
             _,ext=os.path.splitext(single_file)
             
             if ext.lower() in ('.jpg','.jpeg','.png'):
-                files.append(single_file)
+                files.append(single_file)'''
+        
+                                
+        print 'completed',_base,_dir
+        __FILES__=files
+
+def compare_histo(histo1):
+    global __CURR_FILE__
+    global __FILES__
+    global __MATCHED_FILE__
+    
+    new_img=Adjust()
+    
+    while len(__FILES__):
+        print len(__FILES__),
+        __CURR_FILE__=__FILES__.pop()
+        print 'current file',__CURR_FILE__
+        
+        try:
+            new_img.set_image(cv2.imread(__CURR_FILE__))
+            new_img.resize()
+        except SliseException as Se:
+            print Se
+            continue
+            
                 
-                
-        print 'completed'
-        return files                    
+
+        print 'calculating histo...'
+        new_hist=Histogram(new_img.image())
+        new_hist.get_histogram()
+    
+        if histo1==new_hist:
+            print 'yes',__CURR_FILE__
+            __MATCHED_FILE__.append(__CURR_FILE__)
+          
+def fill_icon_view(liststore):
+    pix=GdkPixbuf.Pixbuf()
+    while len(__MATCHED_FILE__):
+        temp_name=__MATCHED_FILE__.pop()
+        liststore.append([pix.new_from_file_at_scale(temp_name,200,200,1),str(temp_name)])
+                                                      
 
 if __name__=="__main__":
     a=Slise_win()
     gtk.main()
+    
+    
