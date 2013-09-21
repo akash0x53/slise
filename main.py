@@ -183,9 +183,6 @@ def compare_histo(histo1):
             print Se
             continue
             
-                
-
-        print 'calculating histo...'
         new_hist=Histogram(new_img.image())
         new_hist.get_histogram()
     
