@@ -7,25 +7,28 @@ from slise.slise_exception import SliseException
 
 class Adjust:
     def __init__(self):
-        pass
+        self.template=None
                        
-    @property        
     def image(self):
-        return self.image
+        return self.template
     
-    @image.setter
-    def image(self,img):
-        self.image=img
+    def set_image(self,img):
+               
+        if img.shape[2]!=3 or img.dtype!='uint8' or (img.shape[1]<640 or img.shape[1]<480):
+            raise SliseException("Image dimension error")
+        else:
+            self.template=img
     
     def resize(self):
-        self.image=cv2.resize(self.image,(640,480))
-        return self.image
+        print self.template.shape
+        self.template=cv2.resize(self.template,(640,480))
+        return self.template
     
     def tohsv(self):
-        return cv2.cvtColor(self.image,cv2.cv.CV_BGR2HSV)
+        return cv2.cvtColor(self.template,cv2.cv.CV_BGR2HSV)
     
     @property
     def size(self):
-        resoltion=str(self.image.shape[1])+"x"+str(self.image.shape[0])
+        resoltion=str(self.template.shape[1])+"x"+str(self.template.shape[0])
         return resoltion
     
