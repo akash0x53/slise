@@ -147,28 +147,23 @@ def enumerate_files(path):
         global __FILES__
         print 'function called'
         
-        temp=list()
-        files=list()
-        base=list()
-        
-        for (_base,_dir,filename) in os.walk(path):
-            temp.extend(filename)
-        
-        while len(filename):
-            print os.path.join(_base,temp.pop()),
-            
-                           
-        '''
-        for single_file in temp:
-            _,ext=os.path.splitext(single_file)
-            
-            if ext.lower() in ('.jpg','.jpeg','.png'):
-                files.append(single_file)'''
-        
-                                
-        print 'completed',_base,_dir
-        __FILES__=files
+        folder_to_scan=[path]
+        image_paths=[]
 
+        while len(folder_to_scan):
+            path_to_scan=folder_to_scan.pop()
+            
+            for f in os.listdir(str(path_to_scan)):
+                if os.path.isfile(os.path.join(str(path_to_scan),f)):
+                    name,ext=os.path.splitext(os.path.join(str(path_to_scan),f))
+                    if ext.lower() in ('.jpg','.png','.jpeg'):
+                        image_paths.append(os.path.join(str(path_to_scan),f))
+                else:
+                    folder_to_scan.append(os.path.join(str(path_to_scan),f))
+        
+        __FILES__=image_paths
+        
+                
 def compare_histo(histo1):
     global __CURR_FILE__
     global __FILES__
