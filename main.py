@@ -1,17 +1,27 @@
-from gi.repository import Gtk as gtk
-from gi.repository import Gdk as gdk
+#!/usr/bin/env python
+
+#SLISE: Simple Local Image Search Engine 
+#Author: Akash Shende
+#contact: akash0x53s@gmail.com
+
+#right now, it compares *only* __blue__ channel.
+
+from multiprocessing.pool import ThreadPool
+import os,cv2
+import gi.repository.Gtk as gtk
+import gi.repository.Gdk as gdk
 from gi.repository import GdkPixbuf
-from slise import __IMAGE_PATH__, __CURR_FILE__, __MATCHED_FILE__
+from slise import __IMAGE_PATH__
+from slise import __CURR_FILE__
+from slise import __MATCHED_FILE__
 from slise import __HISTOGRAM__
 from slise import  __FILES__
 from slise.Adjust import Adjust
 from slise.Features import Histogram
-import os,cv2
-from multiprocessing.pool import ThreadPool
 from slise.slise_exception import SliseException
 
 
-class Slise_win:
+class SliseWindow:
 
     def __init__(self):
         self.path=None
@@ -25,7 +35,6 @@ class Slise_win:
         builder.add_from_file(ui_file)
 
         #main window
-        window=gtk.Window()
         window=builder.get_object('window1')
         window.connect('delete-event',self.onExit)
 
@@ -65,7 +74,9 @@ class Slise_win:
         #add CSS
         style=gtk.CssProvider()
         style.load_from_path('./gui/style.css')
-        gtk.StyleContext.add_provider_for_screen(gdk.Screen.get_default(),style,gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
+        gtk.StyleContext.add_provider_for_screen(gdk.Screen.get_default(),\
+                                                 style,\
+                                                 gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
 
         window.show_all()
 
@@ -109,7 +120,13 @@ class Slise_win:
         global __HISTOGRAM__
         if __HISTOGRAM__ is not None:
             pix=GdkPixbuf.Pixbuf()
-            img=pix.new_from_data(__HISTOGRAM__.tostring(),GdkPixbuf.Colorspace.RGB,False,8,__HISTOGRAM__.shape[1],__HISTOGRAM__.shape[0],__HISTOGRAM__.shape[1]*3,None,None)
+            img=pix.new_from_data(__HISTOGRAM__.tostring(),\
+                                  GdkPixbuf.Colorspace.RGB,\
+                                  False,8,\
+                                  __HISTOGRAM__.shape[1],\
+                                  __HISTOGRAM__.shape[0],\
+                                  __HISTOGRAM__.shape[1]*3,\
+                                  None,None)
             gdk.cairo_set_source_pixbuf(context,img,0,0)
 
             context.fill()
@@ -196,9 +213,11 @@ def fill_icon_view(liststore):
     pix=GdkPixbuf.Pixbuf()
     while len(__MATCHED_FILE__):
         temp_name=__MATCHED_FILE__.pop()
-        liststore.append([pix.new_from_file_at_scale(temp_name,200,200,1),str(temp_name)])
+        liststore.append(\
+                         [pix.new_from_file_at_scale(temp_name,200,200,1),\
+                          str(temp_name)])
 
 
 if __name__=="__main__":
-    a=Slise_win()
+    SliseWindow()
     gtk.main()
