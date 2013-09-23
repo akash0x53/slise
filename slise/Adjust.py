@@ -25,7 +25,8 @@ class Adjust:
         return self.template
     
     def tohsv(self):
-        return cv2.cvtColor(self.template,cv2.cv.CV_BGR2HSV)
+        self.template=cv2.cvtColor(self.template,cv2.cv.CV_BGR2HSV)
+        return self.template
     
     @property
     def size(self):
