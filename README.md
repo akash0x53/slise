@@ -16,5 +16,14 @@ Simple image searching tool, search images based on image histogram and other fe
   * Better thread management
   * Better exception handling
   
+### Screenshots
+  ----
+  First select an image as "key image". Slise generate and display Histogram of the same image.
+
+  ![](img/step1.png)  
+
+  Select a path to search in, and click on Find.  
+ 
+  ![](img/step2.png)  
 
 [For more info](http://akash0x53.github.io/blog/2013/09/22/slise/)
