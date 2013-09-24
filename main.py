@@ -101,7 +101,6 @@ class SliseWindow:
 
         if __IMAGE_PATH__ is not None:
             pix=GdkPixbuf.Pixbuf()
-            #print __IMAGE_PATH__
             img=pix.new_from_file_at_scale(__IMAGE_PATH__,300,300,1)
             gdk.cairo_set_source_pixbuf(context,img,0,0)
             context.fill()
@@ -110,7 +109,9 @@ class SliseWindow:
         if __HISTOGRAM__ is None and __IMAGE_PATH__ is not None :
             adjust_image=Adjust()
             adjust_image.image=cv2.imread(__IMAGE_PATH__)
-            self.hist_calc=Histogram(adjust_image.image)
+            adjust_image.resize()
+            adjust_image.tohsv(adjust_image.resized)
+            self.hist_calc=Histogram(adjust_image.hsv)
             self.hist_calc.get_histogram()
             __HISTOGRAM__=self.hist_calc.draw_histogram()
             #print __HISTOGRAM__
@@ -196,13 +197,14 @@ def compare_histo(histo1):
         print 'current file',__CURR_FILE__
 
         try:
-            new_img.set_image(cv2.imread(__CURR_FILE__))
+            new_img.image=cv2.imread(__CURR_FILE__)
             new_img.resize()
+            new_img.tohsv(new_img.resized)
         except SliseException as Se:
             print Se
             continue
 
-        new_hist=Histogram(new_img.image())
+        new_hist=Histogram(new_img.hsv)
         new_hist.get_histogram()
 
         if histo1==new_hist:
@@ -210,6 +212,9 @@ def compare_histo(histo1):
             __MATCHED_FILE__.append(__CURR_FILE__)
 
 def fill_icon_view(liststore):
+    if len(liststore)!=0:
+        print 'its not empty'
+            
     pix=GdkPixbuf.Pixbuf()
     while len(__MATCHED_FILE__):
         temp_name=__MATCHED_FILE__.pop()
@@ -221,3 +226,5 @@ def fill_icon_view(liststore):
 if __name__=="__main__":
     SliseWindow()
     gtk.main()
+        
+    
