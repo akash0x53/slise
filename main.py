@@ -212,9 +212,6 @@ def compare_histo(histo1):
             __MATCHED_FILE__.append(__CURR_FILE__)
 
 def fill_icon_view(liststore):
-    if len(liststore)!=0:
-        print 'its not empty'
-            
     pix=GdkPixbuf.Pixbuf()
     while len(__MATCHED_FILE__):
         temp_name=__MATCHED_FILE__.pop()
