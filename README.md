@@ -11,6 +11,7 @@ Simple image searching tool, search images based on image histogram and other fe
   * numpy 1.6.2
 
 ### ToDo  
+
   * ~~HSV based histogram~~
   * Face detection to search images with faces
   * Better thread management
