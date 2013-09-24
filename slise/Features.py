@@ -10,13 +10,15 @@ class Histogram:
         self.image=img
         
     def __eq__(self,another_histo):
-        difference=cv2.compareHist(self.hist[0],another_histo.hist[0],cv2.cv.CV_COMP_CORREL)
-        
-        difference*=100
-        if difference>=__THRESH_VAL__:
+        diff=list()
+        diff.append(cv2.compareHist(self.hist[0],another_histo.hist[0],cv2.cv.CV_COMP_CORREL)*100)
+        diff.append(cv2.compareHist(self.hist[1],another_histo.hist[1],cv2.cv.CV_COMP_CORREL)*100)
+        diff.append(cv2.compareHist(self.hist[2],another_histo.hist[2],cv2.cv.CV_COMP_CORREL)*100)
+        diff.sort(reverse=True)
+        if ((diff[0]+diff[1])/2)>=__THRESH_VAL__:
             return True
-        return False
-        
+        return False 
+      
     
     def get_histogram(self):
         channels=self.image[:,:,0],self.image[:,:,1],self.image[:,:,2]
@@ -38,17 +40,17 @@ class Histogram:
         temp3=np.zeros((300,256,3),'uint8')
         
         x=0
-        for pt in self.hist[2]:
+        for pt in self.hist[2]: #V
             cv2.line(temp1, (x,100), (x,100-pt), (255,0,0))
             x+=1
        
         x=0
-        for pt in self.hist[1]:
+        for pt in self.hist[1]: #S
             cv2.line(temp2, (x,200), (x,200-pt), (0,255,0))
             x+=1
             
         x=0
-        for pt in self.hist[0]:
+        for pt in self.hist[0]: #H
             cv2.line(temp3, (x,300), (x,300-pt), (0,0,255))
             x+=1
                 
